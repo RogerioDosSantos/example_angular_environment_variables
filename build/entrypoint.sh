@@ -2,7 +2,7 @@
 
 replace_environment()
 {
-  #Usage: replace_environment <in:directory> <in:source> <in:destination>
+  #Usage: replace_environment <in:source> <in:destination>
   local source=$1
   local destination=$2
   echo "- ${source}: ${destination}"

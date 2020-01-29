@@ -49,12 +49,10 @@ RUN echo "*** Building Project" \
 FROM nginx:1.13.9-alpine
 WORKDIR /workspace
 COPY --from=build /workspace/dist/app /usr/share/nginx/html
-COPY ./build/entrypoint.sh /workspace/encryption.sh
+COPY ./build/entrypoint.sh /workspace/entrypoint.sh
 
 ### Start Project
 EXPOSE 80
 EXPOSE 443
-# CMD ["nginx", "-g", "daemon off;"]
-CMD ["/bin/ash", "/workspace/encryption.sh"]
+CMD ["/bin/ash", "/workspace/entrypoint.sh"]
 
-# CMD ["/bin/ash"]
