@@ -1,0 +1,20 @@
+# Build (Linux)
+
+version: "3"
+services:
+
+  stage:
+    build:
+      context: ../
+      dockerfile: ./build/stage_linux.docker
+      args:
+        proxy_url: "${proxy_url}"
+    image: "angular_environment_variable_example_stage:linux"
+
+  build:
+    build:
+      context: ../
+      dockerfile: ./build/build_linux.docker
+      args:
+        proxy_url: "${proxy_url}"
+    image: "${registry}/angular_environment_variable_example:linux"

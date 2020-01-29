@@ -1,0 +1,60 @@
+# Build Linux
+
+## Stage
+ARG stage_image="angular_environment_variable_example_stage:linux"
+FROM "${stage_image}" as stage
+
+## Build
+FROM node:11-alpine AS build
+# FROM node:12-alpine AS build
+WORKDIR /workspace
+
+### Install and Configure ZScale Certificate
+ARG proxy_url=""
+ENV http_proxy="${proxy_url}"
+ENV https_proxy="${proxy_url}"
+COPY --from=stage /workspace/zscale/zscale.crt /usr/local/share/ca-certificates
+RUN echo "*** Install and Configure ZScale Certificate" \
+  && echo "HTTP Proxy: ${http_proxy}" \
+  && echo "HTTPS Proxy: ${https_proxy}" \
+  && apk update \
+  && apk add ca-certificates \
+  && rm -rf /var/cache/apk/* \
+  && update-ca-certificates \
+  && echo "*** Install and Configure ZScale Certificate - DONE" 
+
+### Prepare Dependencies Required by the Packages
+RUN echo "*** Installing Dependencies Required by the Packages" \
+  && apk add --update \
+        python \
+  && echo "*** Install Node dependencies - DONE" 
+
+### Add Node Modules Folder to the $PATH
+ENV PATH /workspace/node_modules/.bin:$PATH
+
+### Install and cache app dependencies
+COPY ./src/app/package.json /workspace/package.json
+RUN echo "*** Installing Node dependencies" \
+  && npm install \
+  && npm install --loglevel verbose \
+  && echo "*** Install Node dependencies - DONE" 
+
+### Build Project
+COPY ./src/app /workspace
+RUN echo "*** Building Project" \
+  && npm run build --prod \
+  && echo "*** Building Project - DONE" 
+
+## Release
+FROM nginx:1.13.9-alpine
+WORKDIR /workspace
+COPY --from=build /workspace/dist/app /usr/share/nginx/html
+COPY ./build/entrypoint.sh /workspace/encryption.sh
+
+### Start Project
+EXPOSE 80
+EXPOSE 443
+# CMD ["nginx", "-g", "daemon off;"]
+CMD ["/bin/ash", "/workspace/encryption.sh"]
+
+# CMD ["/bin/ash"]
