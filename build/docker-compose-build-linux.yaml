@@ -7,8 +7,6 @@ services:
     build:
       context: ../
       dockerfile: ./build/stage_linux.docker
-      args:
-        proxy_url: "${proxy_url}"
     image: "angular_environment_variable_example_stage:linux"
 
   build:
