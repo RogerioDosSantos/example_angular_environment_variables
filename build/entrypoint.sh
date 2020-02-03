@@ -6,7 +6,7 @@ replace_environment()
   local source=$1
   local destination=$2
   echo "- ${source}: ${destination}"
-  grep -rl "${source}" '/usr/share/nginx/html' | xargs sed -i "s/${source}/${destination}/g"
+  grep -rl "${source}" '/usr/share/nginx/html' | xargs sed -i "s|${source}|${destination}|g"
 }
 
 echo "Replacing Environment Variables:"
